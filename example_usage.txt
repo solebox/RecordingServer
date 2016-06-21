@@ -1,0 +1,5 @@
+curl http://127.0.0.1:5000/scheduler/jobs -d '{"id":"job1","func":"jobs:job1","args":[1,2],"trigger":"interval","seconds":1}'
+
+curl http://127.0.0.1:5000/scheduler/jobs -d '{"id":"job2", "func":"jobs:job1","args":[1,2],"trigger":"cron", minute="*/1"}'
+
+curl http://127.0.0.1:5000/scheduler/jobs -d '{"name":"yaron","func":"jobs:record","args":["http://10.62.2.153/hdmi",{"name":"london","file_name_prefix":"yaronz"},10],"id":"job22"}'

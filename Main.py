@@ -33,8 +33,10 @@ if __name__ == "__main__":
 
     # monkey patching module to use hmac auth
     for function in app.view_functions:
+
         current = app.view_functions[function]
-        app.view_functions[function] = hmac_auth("create")(current)
+        if function != 'get_jobs':
+            app.view_functions[function] = hmac_auth("create")(current)
 
     scheduler.start()
     app.run()

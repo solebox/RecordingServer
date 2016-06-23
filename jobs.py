@@ -1,3 +1,4 @@
+import json
 import os
 import re
 
@@ -10,6 +11,7 @@ from flask_hmacauth import hmac_auth, DictAccountBroker, HmacManager
 
 app = Flask(__name__)
 recording_path = "/home/sole/recordings"
+logfile = "/home/sole/recordings/jobs.log"
 
 class Config(object):
     JOBS = [
@@ -48,8 +50,11 @@ class RecordingJobScheduler(APScheduler):
         :param str id: explicit identifier for the job (for modifying it later)
         :param func: callable (or a textual reference to one) to run at the given time
         """
+        data = {"job_name": kwargs.get("name", ""), "job_id": id, "args": kwargs.get("args", ""), "func": func}
+        with open(logfile, "a+") as log_file:
+            log_file.write(json.dumps(data)+'\n')
         ret = super(RecordingJobScheduler, self).add_job(id, func, **kwargs)
-        print(id, kwargs)
+        print(func, id, kwargs)
         return ret
 
     def delete_job(self, id, jobstore=None):

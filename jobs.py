@@ -6,9 +6,10 @@ from flask_apscheduler import APScheduler
 import time
 import random
 from FFMpeg import FFMpeg
+from flask_hmacauth import hmac_auth, DictAccountBroker, HmacManager
 
+app = Flask(__name__)
 recording_path = "/home/sole/recordings"
-
 
 class Config(object):
     JOBS = [
@@ -21,12 +22,8 @@ class Config(object):
         # }
     ]
 
+
     SCHEDULER_VIEWS_ENABLED = True
-
-
-def job1(a, b, **kwargs):
-    # print(str(a) + ' ' + str(b))
-    time.sleep(20)
 
 
 def record(source, meta_data, timeout=10, **kwargs):
@@ -38,7 +35,6 @@ def record(source, meta_data, timeout=10, **kwargs):
     destination = os.path.join(recording_path, file_name_prefix + "_" + random_name)
     ffmpeg = FFMpeg(source, destination, timeout)
     ffmpeg.record()
-
 
 
 class RecordingJobScheduler(APScheduler):
@@ -66,11 +62,12 @@ class RecordingJobScheduler(APScheduler):
 
 
 if __name__ == "__main__":
-    app = Flask(__name__)
+
     app.config.from_object(Config())
     app.debug = True
 
     scheduler = RecordingJobScheduler()
     scheduler.init_app(app)
+
     scheduler.start()
     app.run()

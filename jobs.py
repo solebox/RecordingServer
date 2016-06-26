@@ -28,14 +28,25 @@ class Config(object):
     SCHEDULER_VIEWS_ENABLED = True
 
 
+def write_recording_log_entry(entry):
+    data = (dict(entry))
+    with open(logfile, "a+") as log_file:
+        log_file.write(json.dumps(data) + '\n')
+
+
 def record(source, meta_data, timeout=10, **kwargs):
     evil_chars = r"[^a-zA-Z0-9_-]"
     file_name_prefix = meta_data.get("file_name_prefix", "")
     if re.match(evil_chars, file_name_prefix):
         raise TabError("your input is evil and you should feel bad")
+
     random_name = "{:x}".format(random.getrandbits(128))
     destination = os.path.join(recording_path, file_name_prefix + "_" + random_name)
     ffmpeg = FFMpeg(source, destination, timeout)
+    kwargs['meta_data'] = meta_data
+    kwargs['source'] = source
+    kwargs['destination'] = destination
+    write_recording_log_entry(kwargs)
     ffmpeg.record()
 
 
@@ -50,9 +61,14 @@ class RecordingJobScheduler(APScheduler):
         :param str id: explicit identifier for the job (for modifying it later)
         :param func: callable (or a textual reference to one) to run at the given time
         """
-        data = {"job_name": kwargs.get("name", ""), "job_id": id, "args": kwargs.get("args", ""), "func": func}
-        with open(logfile, "a+") as log_file:
-            log_file.write(json.dumps(data)+'\n')
+
+        jobs_kwargs = kwargs.get('kwargs')
+        if jobs_kwargs:
+            jobs_kwargs['job_id'] = id
+        else:
+            kwargs['kwargs'] = {'job_id': id}
+
+
         ret = super(RecordingJobScheduler, self).add_job(id, func, **kwargs)
         print(func, id, kwargs)
         return ret

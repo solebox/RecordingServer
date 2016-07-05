@@ -2,25 +2,25 @@
 import json
 import os
 import subprocess
-
+from datetime import datetime
 import sys
 
 
 class FFMpeg(object):
 
-    def __init__(self, source, destination, duration=10, connection_timeout=1000000, *args, **kwargs):
+    def __init__(self, source, destination, duration="00:00:20.000", connection_timeout=1000000, *args, **kwargs):
         super(FFMpeg, self).__init__(*args, **kwargs)
         self.ffmpeg = "/usr/bin/ffmpeg"
         self.source = source
         self.destination = destination + ".mp4"
-        self.duration = duration
+        self.duration = datetime.strptime(duration, "%H:%M:%S.%f")
         codec = "libx264"
         preset = "medium"
         resolution = "1920x1200"
         vide_buffer = "400k"
         format = "avi"
         audio_codec = ["aac", "-strict", "-2", "-ab", "48k", "-ac", "2", "-ar", "44100"]
-        self.ffmpeg_command = [self.ffmpeg, "-y", "-timeout", str(connection_timeout),  "-i", self.source, "-t", str(duration), "-vcodec", codec, "-preset:v", preset, "-s",
+        self.ffmpeg_command = [self.ffmpeg, "-y", "-timeout", str(connection_timeout),  "-i", self.source, "-t", self.duration.strftime("%H:%M:%S.%f"), "-vcodec", codec, "-preset:v", preset, "-s",
                                resolution, "-b:v", vide_buffer, "-acodec"] + audio_codec +\
                               ['-f', format, self.destination]
 
@@ -42,7 +42,8 @@ class FFMpeg(object):
         """
         source = kwargs.get("source", self.source)
         destination = kwargs.get("destination", self.destination)
-        timeout = self.duration + kwargs.get("timeout", 2)  # time after end of recording in which presumed stuck/done
+        timeout_delta = kwargs.get("timeout", 2)  # time after end of recording in which presumed stuck/done
+        timeout = timeout_delta + self.duration.second + self.duration.minute * 60 + self.duration.hour * (60**2)
         print("executing {}".format(self.ffmpeg_command))
         self.ffmpeg_process = subprocess.Popen(self.ffmpeg_command, shell=False)
         return self.ffmpeg_process

@@ -1,0 +1,22 @@
+{
+	"connection_timeout": 5000000,
+	"duration": "00:00:20.000",
+	"sources":[
+		{ 	
+			"address": "http://10.62.2.152/hdmi", 
+			"source_name": "hdmi_encoder_1"
+		},
+		{
+			"address": "http://10.62.2.153/hdmi", 
+			"source_name": "hdmi_encoder_2"
+		},
+		{
+			"address": "http://10.62.2.154/hdmi", 
+			"source_name": "hdmi_encoder_3"
+		},
+		{
+			"address": "http://10.62.2.155/hdmi", 
+			"source_name": "hdmi_encoder_4"
+		}
+	]
+}

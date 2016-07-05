@@ -69,6 +69,9 @@ class FFMpeg(object):
     def is_alive(self):
         return self.ffmpeg_process.poll() is None
 
+    def return_status(self):
+        return self.ffmpeg_process.poll()
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:

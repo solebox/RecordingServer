@@ -3,18 +3,28 @@ import json
 import sys
 import subprocess
 from FFMpeg import FFMpeg
+from LogColors import ColoredLogger
 from SizeMon import SizeMon
+import colorlog
 import logging
+from datetime import datetime
 
-logging.basicConfig(filename='example.log', level=logging.DEBUG)
-logger = logging
 
-if len(sys.argv) != 2:
-    print("usage: {} config_file".format(sys.argv[0]))
-    sys.exit(1)
+
+handler = colorlog.StreamHandler()
+handler.setFormatter(colorlog.ColoredFormatter('%(log_color)s%(levelname)s:%(name)s:%(message)s'))
+
+logger = colorlog.getLogger('example')
+logger.addHandler(handler)
+
+
+colorlog.basicConfig(filename='/var/log/recording.log', level=logging.DEBUG)
+
+conf_location = "./conf.json"
+
 conf = {}
 
-with open(sys.argv[1]) as config_file:
+with open(conf_location) as config_file:
     conf = json.load(config_file)
 
 try:
@@ -28,9 +38,9 @@ try:
 
         address = source["address"]
         source_name = source["source_name"]
-        date_time = "11.11.placeholder"
-        recording_name = "{source_name}_{date_time}".format(source_name=source_name, date_time=date_time)
-        recording_name = "/home/sole/recordings/{}.mp4".format(recording_name)
+        date_time = datetime.now().strftime("%H_%M_%S")
+        recording_name = "{date_time}_{source_name}".format(source_name=source_name, date_time=date_time)
+        recording_name = "/home/sole/recordings/{}".format(recording_name)
         try:
             ffmpeg = FFMpeg(address, recording_name, duration, connection_timeout=connection_timeout)
             logger.info("setting up ffmpeg for {}: {}".format(source_name, ffmpeg.destination))
@@ -44,7 +54,9 @@ try:
 
     for source_name, recording_process in recording_procs.items():
         try:
-            outs, errs = recording_process.communicate(timeout=duration)
+            parsed_duration = datetime.strptime(duration,"%H:%M:%S.%f")
+            parsed_duration = parsed_duration.hour * (60**2) + parsed_duration.minute*60 + parsed_duration.second + 100
+            outs, errs = recording_process.communicate(timeout=parsed_duration)
             recording_monitors[source_name].stop()
         except subprocess.TimeoutExpired:
             recording_process.kill()

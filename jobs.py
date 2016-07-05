@@ -13,6 +13,7 @@ app = Flask(__name__)
 recording_path = "/home/sole/recordings"
 logfile = "/home/sole/recordings/jobs.log"
 
+
 class Config(object):
     JOBS = [
         # {

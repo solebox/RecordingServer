@@ -3,7 +3,7 @@ import json
 import sys
 import subprocess
 from FFMpeg import FFMpeg
-from LogColors import ColoredLogger
+
 from SizeMon import SizeMon
 import colorlog
 import logging

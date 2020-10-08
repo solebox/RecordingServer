@@ -18,7 +18,7 @@ ipython-genutils==0.1.0
 itsdangerous==0.24
 Jinja2==2.8
 MarkupSafe==0.23
-passlib==1.6.5
+passlib==1.7.3
 pexpect==4.1.0
 pickleshare==0.7.2
 ptyprocess==0.5.1

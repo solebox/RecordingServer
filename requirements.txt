@@ -16,7 +16,7 @@ Flask-WTF==0.12
 ipython==4.2.0
 ipython-genutils==0.1.0
 itsdangerous==0.24
-Jinja2==2.8
+Jinja2==2.11.3
 MarkupSafe==0.23
 passlib==1.6.5
 pexpect==4.1.0
